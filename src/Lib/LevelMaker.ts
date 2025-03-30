@@ -111,10 +111,7 @@ export class LevelMaker {
       let isRoomIndexClean = false;
 
       while (!isRoomIndexClean) {
-        //console.log("index clean", isRoomIndexClean);
-
         const index = LevelMaker.rng.integer(0, numTiles - 1);
-        //console.log("index", index);
 
         // test for unique index
         if (!usedIndexes.includes(index)) {
@@ -163,11 +160,6 @@ export class LevelMaker {
         }
       }
     }
-
-    console.log("roomIndexes", roomIndexes);
-    console.log("stairIndexes", stairIndexes);
-    console.log("fountainIndexes", fountainIndexes);
-    console.log("storeIndexes", storeIndexes);
     //#endregion buildingData
 
     //#region addingNodes
@@ -225,9 +217,8 @@ export class LevelMaker {
         verticalRoomGroups.push([node as Node]);
       }
     }
-    //console.log("verticalRoomGroups", verticalRoomGroups);
+
     const sortedVerticalRoomGroups = sortNodeGroupsByYDescending(verticalRoomGroups);
-    console.log("sortedVerticalRoomGroups", sortedVerticalRoomGroups);
     //#endregion verticalGroups
 
     //#region addingVerticalEdges
@@ -269,10 +260,9 @@ export class LevelMaker {
         horizontalRoomGroups.push([node as Node]);
       }
     }
-    //console.log("horizontalRoomGroups", horizontalRoomGroups);
+
     //sort groups by x
     const sortedHorizontalRoomGroups = sortNodeGroupsByXDescending(horizontalRoomGroups);
-    console.log("sortedHorizontalRoomGroups", sortedHorizontalRoomGroups);
     //#endregion horizontalGroups
 
     //#region addingHorizontalEdges
@@ -299,7 +289,6 @@ export class LevelMaker {
     while (!roomsAreConnected && connectingRoomLoops < 10) {
       lostRooms = [];
       unconnectedRooms = getUnconnectedrooms(graph);
-      console.log("unconnectedRooms", unconnectedRooms, "loops: ", connectingRoomLoops);
 
       for (let i = 0; i < unconnectedRooms.length; i++) {
         let currentRoom = graph.getNodeById(unconnectedRooms[i])!;
@@ -307,13 +296,11 @@ export class LevelMaker {
 
         //find a node or edge that is near the unconnected room
         let bestTile = marchAndFindEdge(currentRoom, graph);
-        //console.log("bestTile", bestTile);
 
         if (bestTile === null) continue;
         if (bestTile.distance < Infinity) {
           spliceNewNode(bestTile, graph, roomIndex);
         } else {
-          console.log("no edge found for unconnected room");
           lostRooms.push(graph.getNodeByIndex(roomIndex)!);
         }
       }
@@ -324,9 +311,7 @@ export class LevelMaker {
     //#endregion addingUnconnectedRooms
 
     //#region intersectingEdges
-
     let intersectingEdges = graph.findEdgeIntersections();
-    console.log("intersectingEdges", intersectingEdges);
 
     for (const intersectingEdge of intersectingEdges) {
       findAndReplaceIntersectionWithCrossNode(graph, intersectingEdge[0], intersectingEdge[1], [
@@ -342,43 +327,32 @@ export class LevelMaker {
     //prune stray nodes
     unconnectedGroups.forEach(group => {
       if (group.length === 1) {
-        console.log("pruning stray node: ", group[0]);
         graph.deleteNodeById(group[0].id);
       }
     });
 
     let numSplicingLoops = 0;
     while (unconnectedGroups.length > 1 && numSplicingLoops < 10) {
-      console.log("unconnectedGroups", unconnectedGroups);
       if (unconnectedGroups.length > 1) {
         //iterate over unconnected groups and if there's only one node, delete it
 
         let closeNodes = findClosestNodesBetweenSeparateGroupos(unconnectedGroups[0], unconnectedGroups[1]);
-        console.log("closeNodes", closeNodes);
         //closest Edge
 
         //let closeEdgeA = marchAndFindEdgeBetweenGroups(closeNodes.nodeA, unconnectedGroups[1], graph);
         let closeEdgeA = findEdgeInOtherGroupReturnTileDetails(closeNodes.nodeA, graph);
 
-        console.log("closeEdgeA", closeEdgeA);
-
         //let closeEdgeB = marchAndFindEdgeBetweenGroups(closeNodes.nodeB, unconnectedGroups[0], graph);
         let closeEdgeB = findEdgeInOtherGroupReturnTileDetails(closeNodes.nodeB, graph);
 
-        console.log("closeEdgeB", closeEdgeB);
-
         if (closeEdgeA != null && closeEdgeB == null) {
-          console.log("splicing closeEdgeA");
           spliceNewNode(closeEdgeA, graph, closeNodes.nodeA.index);
         } else if (closeEdgeB != null && closeEdgeA == null) {
-          console.log("splicing closeEdgeB");
           spliceNewNode(closeEdgeB, graph, closeNodes.nodeB.index);
         } else if (closeEdgeA != null && closeEdgeB != null) {
           if (closeEdgeA.distance < closeEdgeB.distance) {
-            console.log("splicing closeEdgeA");
             spliceNewNode(closeEdgeA, graph, closeNodes.nodeA.index);
           } else {
-            console.log("splicing closeEdgeB");
             spliceNewNode(closeEdgeB, graph, closeNodes.nodeB.index);
           }
         }
@@ -386,12 +360,9 @@ export class LevelMaker {
 
       numSplicingLoops++;
       unconnectedGroups = graph.findConnectedComponents();
-      console.log("numSplicingLoops", numSplicingLoops);
     }
 
     unconnectedGroups = graph.findConnectedComponents();
-    console.log("unconnectedGroups", unconnectedGroups);
-    console.log("Graph", graph);
     return graph;
   }
 
@@ -416,7 +387,6 @@ export class LevelMaker {
         let y = tile[1];
         let tileIndex = y * config.columns + x;
         let tempTile = map.tiles[tileIndex];
-        //console.log("tempTile", tempTile, x, y, map);
 
         dir == "horizontal" ? tempTile.addGraphic(horizontalBlackLine) : tempTile.addGraphic(verticalBlackLine);
       }
@@ -425,7 +395,6 @@ export class LevelMaker {
     //Room features
     for (const tile of map.tiles) {
       let node = graph.getNodeByIndex(tileIndex);
-      //console.log("node", node, "tileIndex", tileIndex);
       if (!node) {
         tileIndex++;
         continue;
@@ -495,11 +464,9 @@ export class LevelMaker {
 
 function getUnconnectedrooms(graph: GraphNetwork): string[] {
   let unconnectedRooms: string[] = [];
-  //console.log("graph.list", graph.adjacencyList);
   unconnectedRooms = Object.entries(graph.adjacencyList)
     .filter(entry => entry[1].size === 0)
     .map(entry => entry[0]);
-  // console.log("unconnectedRooms", unconnectedRooms, "length", unconnectedRooms.length);
   return unconnectedRooms;
 }
 
@@ -550,14 +517,12 @@ function spliceNewNode(
   let unconnectedRoomNode = graph.getNodeByIndex(roomIndex)!;
   // test unconnectedRoomNode for if its a hallway node, and you may need to replace it
   let unconnectedRoomNodeType = unconnectedRoomNode.type;
-  console.warn("unconnectedRoomNodeType", unconnectedRoomNodeType);
 
   switch (unconnectedRoomNodeType) {
     case tileType.THALLWAYUP:
     case tileType.THALLWAYDOWN:
     case tileType.THALLWAYLEFT:
     case tileType.THALLWAYRIGHT:
-      console.log("changing room type from ", unconnectedRoomNodeType, "to", tileType.CROSSHALLWAY);
       unconnectedRoomNode.type = tileType.CROSSHALLWAY;
       break;
     default:
@@ -584,8 +549,6 @@ function tilesCrossed(Edge: Edge): Array<number[]> {
   let err = dx - dy;
 
   while (x0 !== x1 || y0 !== y1) {
-    //console.log("tilesCrossed", x0, y0, x1, y1);
-
     tiles.push([x0, y0]);
     const e2 = 2 * err;
     if (e2 > -dy) {
@@ -598,10 +561,6 @@ function tilesCrossed(Edge: Edge): Array<number[]> {
     }
   }
   tiles.push([x1, y1]);
-
-  //remove the first and last element of tiles because they are the start and end of the edge
-  //tiles.shift();
-  //tiles.pop();
 
   return tiles;
 }
@@ -749,7 +708,7 @@ class Edge {
   }
 }
 
-class GraphNetwork {
+export class GraphNetwork {
   nodes: Node[] = [];
   edges: Edge[] = [];
   private _adjacencyList: Record<UUID, Set<UUID>>;
@@ -797,6 +756,10 @@ class GraphNetwork {
 
   getNodeByIndex(index: number): Node | undefined {
     return this.nodes.find(node => node.index === index);
+  }
+
+  getNodeByCoords(x: number, y: number): Node | undefined {
+    return this.nodes.find(node => node.position.x === x && node.position.y === y);
   }
 
   getEdges() {
@@ -850,6 +813,13 @@ class GraphNetwork {
         this.dfs(this.getNodeById(neighbor)!, visited, component);
       }
     }
+  }
+
+  getStartingTileData(): Node | null {
+    //find tile that is a stairsUp type
+    const upStair = this.nodes.find(node => node.type === tileType.STAIRUP);
+    if (!upStair) return null;
+    return upStair;
   }
 
   findEdgeIntersections(): [Edge, Edge, number, number][] {
@@ -926,9 +896,6 @@ function getTileDirection(tiles: number[][]): "horizontal" | "vertical" | "none"
 }
 
 function getCoordsFromIndex(index: number, width: number): [number, number] {
-  // console.log(index, width);
-  // console.log(Math.floor(index / width), index % width);
-
   return [index % width, Math.floor(index / width)];
 }
 
@@ -978,8 +945,6 @@ function marchAndFindEdge(
     if (direction === "left" || direction === "right") filteredEdges = tempEdges.filter(edge => edge.direction === "vertical");
 
     while (!hasFoundGraphEdge && !hasFoundMapEdge) {
-      //console.log("marchingX", marchingX, "marchingY", marchingY);
-
       marchingX += currentDirection[0];
       marchingY += currentDirection[1];
 
@@ -1006,7 +971,6 @@ function marchAndFindEdge(
       hasFoundGraphEdge = bestTile.distance < Infinity;
     }
   }
-  //console.log("bestTile", bestTile);
   return {
     x: bestTile.x,
     y: bestTile.y,
@@ -1024,7 +988,6 @@ function marchAndFindEdgeBetweenGroups(
 ): { x: number; y: number; distance: number; direction: "up" | "down" | "left" | "right"; edge: Edge } | null {
   function getBlockedDirections(node: Node, graph: GraphNetwork): "up" | "down" | "left" | "right"[] {
     let list = graph.adjacencyList[node.id];
-    console.log("list", list);
 
     const directionTests = {
       up: (node: Node, otherNode: Node): boolean => {
@@ -1056,7 +1019,6 @@ function marchAndFindEdgeBetweenGroups(
   }
 
   let blockedDirections = getBlockedDirections(node, graph);
-  console.log(`node:`, node, "blocked directions: ", blockedDirections);
 
   let marchingDirections: ("up" | "down" | "left" | "right")[] = ["up", "down", "left", "right"];
   //remove blocked directions
@@ -1067,7 +1029,6 @@ function marchAndFindEdgeBetweenGroups(
       marchingDirections.splice(index, 1);
     }
   }
-  console.log("remaining directions", marchingDirections);
 
   //for remaining directions, march and find edge
   let bestTile: { x: number; y: number; distance: number; edge: Edge; direction: "up" | "down" | "left" | "right" } | null = null;
@@ -1140,8 +1101,6 @@ function findEdgeInOtherGroupReturnTileDetails(
     let marchingX = node.position.x;
     let marchingY = node.position.y;
 
-    console.log("inner loop of findingedge: ", node, direction);
-
     while (!hasHitEdge && !hasHitMapEdge) {
       let currentDirection = direcitonVectors[direction as keyof typeof direcitonVectors];
       marchingX += currentDirection[0];
@@ -1149,35 +1108,26 @@ function findEdgeInOtherGroupReturnTileDetails(
       hasHitMapEdge = marchingX <= 0 || marchingX >= graph.width - 1 || marchingY <= 0 || marchingY >= graph.height - 1;
 
       if (hasHitMapEdge) {
-        console.error("hit map edge: ", marchingX, marchingY);
         break;
       }
 
       // check if marching tile has an edge
       let tileCoors: [number, number] = [marchingX, marchingY];
-      console.log("tileCoors: ", tileCoors);
 
       const edgesFound = graph.findEdgesThatCoverTile(tileCoors);
-      console.log("edgesFound: ", edgesFound);
 
       if (edgesFound.length > 0) {
-        console.log("found edge: ", edgesFound);
         hasHitEdge = true;
         //check each edge for a node that is connected to the other group
         for (const edge of edgesFound) {
-          console.log("edge: ", edge);
-
           let { source, target } = edge.nodes;
 
           // using graph.isConnected see if the node is connected to the other group
           if (graph.isConnected(node, target) || graph.isConnected(node, source)) {
             // bad edge
-            console.warn("bad edge: ", edge);
 
             break;
           } else {
-            console.log("good edge: ", edge);
-
             // you have found an edge in other group, return tile details
             return {
               x: marchingX,
