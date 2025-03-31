@@ -8,6 +8,7 @@ import { LevelMaker } from "./Lib/LevelMaker";
 import { LeftPane } from "./Actors/LeftPane";
 import { RightPane } from "./Actors/RightPane";
 import { Party } from "./Actors/Party";
+import { loader } from "./resources";
 
 await UI.create(document.body, model, template).attached;
 
@@ -17,9 +18,11 @@ const game = new Engine({
   canvasElementId: "cnv", // the DOM canvas element ID, if you are providing your own
   displayMode: DisplayMode.FitScreen, // the display mode
   pixelArt: true,
+  suppressPlayButton: true,
+  pixelRatio: 2.0,
 });
 
-await game.start();
+game.start(loader);
 
 let tmConfig: TileMapOptions = { name: "test", columns: 35, rows: 25, tileHeight: 16, tileWidth: 16 };
 const myGraphNetwork = LevelMaker.createLevel(tmConfig);

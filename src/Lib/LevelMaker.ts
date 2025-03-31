@@ -69,7 +69,7 @@ const stairDown = new GraphicsGroup({ useAnchor: true, members: [blackTile, whit
 
 //#endregion graphics
 
-const tileType = {
+export const tileType = {
   ROOM: "ROOM",
   VHALLWAY: "VHALLWAY",
   HHALLWAY: "HHALLWAY",
@@ -603,7 +603,7 @@ function isEdgeIndex(index: number, width: number, height: number): boolean {
   );
 }
 
-class Node {
+export class Node {
   private _type: keyof typeof tileType;
   private _id: UUID;
   private _index: number;
@@ -640,7 +640,7 @@ class Node {
     return this._id;
   }
 
-  get numberEdgest() {
+  get numberEdges() {
     return this._numEdges;
   }
 
@@ -665,7 +665,7 @@ interface EdgeConfig {
   target: Node;
 }
 
-class Edge {
+export class Edge {
   private _id: UUID;
   private _source: Node;
   private _target: Node;

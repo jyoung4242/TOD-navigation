@@ -1,11 +1,14 @@
 import { Actor, Color, Engine, KeyEvent, Keys, Rectangle, TileMap, vec } from "excalibur";
-import { GraphNetwork } from "../Lib/LevelMaker";
+import { GraphNetwork, tileType } from "../Lib/LevelMaker";
+import { clearRoomFlag, setRoomFlag } from "./RightPane";
+import { c } from "vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
 
 export class Party extends Actor {
   private _currentTile: { x: number; y: number } = { x: 0, y: 0 };
   private _previousTile: { x: number; y: number } = { x: 0, y: 0 };
   private _tilemap: TileMap;
   private _graph: GraphNetwork;
+  private _directionFacing: "up" | "down" | "left" | "right" = "right";
 
   constructor(tilemap: TileMap, graph: GraphNetwork) {
     super({
@@ -37,15 +40,19 @@ export class Party extends Actor {
 
       switch (event.key) {
         case Keys.ArrowUp:
+          this._directionFacing = "up";
           this.currentTile = { x: currentTile.x, y: currentTile.y - 1 };
           break;
         case Keys.ArrowDown:
+          this._directionFacing = "down";
           this.currentTile = { x: currentTile.x, y: currentTile.y + 1 };
           break;
         case Keys.ArrowLeft:
+          this._directionFacing = "left";
           this.currentTile = { x: currentTile.x - 1, y: currentTile.y };
           break;
         case Keys.ArrowRight:
+          this._directionFacing = "right";
           this.currentTile = { x: currentTile.x + 1, y: currentTile.y };
           break;
       }
@@ -72,9 +79,24 @@ export class Party extends Actor {
       //get position of current tile
       const currentTileIndex = this._currentTile.x + this._currentTile.y * this._tilemap.columns;
       const currentTile = this._tilemap.tiles[currentTileIndex];
-      console.log("currentTile", currentTile);
       this.pos = vec(currentTile.pos.x + 8 * this.scale.x, currentTile.pos.y + 8 * this.scale.y);
-      console.log("this.pos", this.pos);
+
+      //get node of current tile
+      const currentNode = this._graph.getNodeByCoords(this._currentTile.x, this._currentTile.y);
+      if (!currentNode) {
+        clearRoomFlag(this._directionFacing, this._currentTile, this._graph);
+        return;
+      }
+      if (
+        currentNode?.type == tileType.ROOM ||
+        currentNode?.type == tileType.STAIRDOWN ||
+        currentNode?.type == tileType.STAIRUP ||
+        currentNode?.type == tileType.STORE
+      ) {
+        setRoomFlag(currentNode);
+      } else {
+        clearRoomFlag(this._directionFacing, this._currentTile, this._graph);
+      }
     }
   }
 }
@@ -92,10 +114,10 @@ function isNextTileClear(current: { x: number; y: number }, next: { x: number; y
   const nextNode = graph.getNodeByCoords(next.x, next.y);
   const nextEdge = graph.findEdgesThatCoverTile([next.x, next.y]);
 
-  console.log("currentNode", currentNode);
+  /* console.log("currentNode", currentNode);
   console.log("currentEdge", currentEdge);
   console.log("nextNode", nextNode);
-  console.log("nextEdge", nextEdge);
+  console.log("nextEdge", nextEdge); */
 
   //scenario one, current tile is an edge
   if (currentNode === undefined && currentEdge.length > 0) {
@@ -104,7 +126,7 @@ function isNextTileClear(current: { x: number; y: number }, next: { x: number; y
       //loop through both currentEdge and nextEdges and look for a common id, then return true
       for (const edge of nextEdge) {
         for (const edge2 of currentEdge) {
-          console.log("edge.id", edge.id, "edge2.id", edge2.id);
+          //console.log("edge.id", edge.id, "edge2.id", edge2.id);
           if (edge.id === edge2.id) return true;
         }
       }
@@ -125,9 +147,9 @@ function isNextTileClear(current: { x: number; y: number }, next: { x: number; y
   //scenario two, current tile is a node
   if (currentNode) {
     const edgeFound = graph.findEdgesThatCoverTile([next.x, next.y]);
-    console.log("currentNode", currentNode);
-    console.log("edgeFound", edgeFound);
-    console.log("graph", graph);
+    //console.log("currentNode", currentNode);
+    //console.log("edgeFound", edgeFound);
+    // console.log("graph", graph);
 
     if (!currentNode) return false;
     if (edgeFound.length === 0) return false;
