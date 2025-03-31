@@ -1,5 +1,5 @@
 import { Canvas, Color, ScreenElement, TileMap, vec } from "excalibur";
-import { GraphNetwork, Node, tileType } from "../Lib/LevelMaker";
+import { Edge, GraphNetwork, Node, tileType } from "../Lib/LevelMaker";
 import { Resources } from "../resources";
 
 let drawRoomFlag: boolean = false;
@@ -813,8 +813,19 @@ function drawFountain(ctx: CanvasRenderingContext2D, start: DrawingBoundingBox, 
   ctx.drawImage(Resources.fountain.image, 0, 0, 24, 24, fountainCoords.x, fountainCoords.y, fountainwidth, fountainheight);
 }
 
-function isFountainDeadEnd(node: Node): boolean {
-  return node.numberEdges == 1 && node.type == tileType.FOUNTAIN;
+function drawHallwaySideView(ctx: CanvasRenderingContext2D, start: DrawingBoundingBox, end: DrawingBoundingBox) {
+  const wallwidth = start.topRight.x - start.topLeft.x;
+  const wallheight = start.bottomLeft.y - start.topLeft.y;
+  const oneSixthH = wallheight / 6;
+
+  ctx.fillStyle = COLOR_CEILING;
+  ctx.fillRect(start.topLeft.x, start.topLeft.y, wallwidth, oneSixthH);
+
+  ctx.fillStyle = COLOR_FLOOR;
+  ctx.fillRect(start.topLeft.x, start.bottomLeft.y - oneSixthH, wallwidth, oneSixthH);
+
+  ctx.fillStyle = COLOR_HALLWAY;
+  ctx.fillRect(start.topLeft.x, start.topLeft.y + oneSixthH, wallwidth, wallheight - oneSixthH - oneSixthH);
 }
 
 function drawRoom(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
@@ -838,4 +849,12 @@ function drawRoom(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeig
   ctx.font = "30px Arial"; // Set font size and type
   ctx.fillStyle = "black"; // Text color
   ctx.fillText("Room", x + width / 2 - 30, y + height / 2);
+}
+
+//General Utility Functions
+
+function getFountainShape(fountainNode: Node, edgeOfEntry: Edge) {}
+
+function isFountainDeadEnd(node: Node): boolean {
+  return node.numberEdges == 1 && node.type == tileType.FOUNTAIN;
 }
