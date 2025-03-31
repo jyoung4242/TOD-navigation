@@ -125,15 +125,19 @@ export class RightPane extends ScreenElement {
           //check validity of new coords
           if (tileCoordsValid(graph, zoneCoords)) {
             const zoneData = drawZones(ctx, canvasWidth, canvasHeight);
-            drawZone(ctx, zoneData, zoneCoords, graph);
-
-            /*drawZone4(ctx, zoneCoords, graph);
+            drawZone(ctx, zoneCoords, graph, zoneData[4], zoneData[5]);
             zone = 3;
             zoneCoords = getTargetCoords(currentCoords, directionFacing, graph, zone);
-            drawZone3(ctx, zoneCoords, graph);
-            drawZone2(ctx, zoneCoords, graph);
-            drawZone1(ctx, zoneCoords, graph);
-            drawZone0(ctx, zoneCoords, graph);*/
+            drawZone(ctx, zoneCoords, graph, zoneData[3], zoneData[4]);
+            zone = 2;
+            zoneCoords = getTargetCoords(currentCoords, directionFacing, graph, zone);
+            drawZone(ctx, zoneCoords, graph, zoneData[2], zoneData[3]);
+            zone = 1;
+            zoneCoords = getTargetCoords(currentCoords, directionFacing, graph, zone);
+            drawZone(ctx, zoneCoords, graph, zoneData[1], zoneData[2]);
+            zone = 0;
+            zoneCoords = getTargetCoords(currentCoords, directionFacing, graph, zone);
+            drawZone(ctx, zoneCoords, graph, zoneData[0], zoneData[1]);
           }
         }
       },
@@ -160,52 +164,6 @@ export function clearRoomFlag(
 export function setRoomFlag(room: Node) {
   drawRoomFlag = true;
   drawingData.roomType = room.type;
-}
-
-function drawZone2(ctx: CanvasRenderingContext2D, coords: { x: number; y: number }, graph: GraphNetwork) {
-  function drawWall(ctx: CanvasRenderingContext2D) {}
-  function drawDoor(ctx: CanvasRenderingContext2D) {}
-  function drawFountain(ctx: CanvasRenderingContext2D) {}
-  function drawHallway(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = "black";
-    ctx.strokeStyle = "red";
-    ctx.moveTo(zone2data.coords.x, zone2data.coords.y);
-    ctx.lineTo(zone2data.endingCoords.x, zone2data.endingCoords.y);
-    /* ctx.moveTo(zone2data.coords.x + zone2data.width, zone2data.coords.y);
-    ctx.lineTo(zone2data.endingCoords.x + zone2data.endingwidth, zone2data.endingCoords.y);
-    ctx.moveTo(zone2data.coords.x, zone2data.coords.y + zone2data.height);
-    ctx.lineTo(zone2data.endingCoords.x, zone2data.endingCoords.y + zone2data.endingheight);
-    ctx.moveTo(zone2data.coords.x + zone2data.width, zone2data.coords.y + zone2data.height);
-    ctx.lineTo(zone2data.endingCoords.x + zone2data.endingwidth, zone2data.endingCoords.y + zone2data.endingheight); */
-    ctx.stroke();
-  }
-  function drawHallLeft(ctx: CanvasRenderingContext2D) {}
-  function drawHallRight(ctx: CanvasRenderingContext2D) {}
-
-  drawHallway(ctx);
-}
-
-function drawZone1(ctx: CanvasRenderingContext2D, coords: { x: number; y: number }, graph: GraphNetwork) {}
-
-function drawZone0(ctx: CanvasRenderingContext2D, coords: { x: number; y: number }, graph: GraphNetwork) {}
-
-function drawRoom(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
-  const inset = 0.1; // 10% inset
-  const borderWidth = 5; // Adjust for thickness
-
-  const x = canvasWidth * inset;
-  const y = canvasHeight * inset;
-  const width = canvasWidth * (1 - inset * 2);
-  const height = canvasHeight * (1 - inset * 2) - borderWidth; // Adjust for border
-
-  // Draw filled rectangle
-  ctx.fillStyle = "white";
-  ctx.fillRect(x, y, width, height);
-
-  // Draw border
-  ctx.lineWidth = borderWidth;
-  ctx.strokeStyle = "black";
-  ctx.strokeRect(x, y, width, height);
 }
 
 function tileCoordsValid(graph: GraphNetwork, tilecoords: { x: number; y: number }): boolean {
@@ -319,27 +277,6 @@ function drawZones(
   for (let i = 0; i < ZONES; i++) {
     const { topLeft, topRight, bottomRight, bottomLeft } = zones[i];
     const { topLeft: nextTL, topRight: nextTR, bottomRight: nextBR, bottomLeft: nextBL } = zones[i + 1];
-
-    // Alternate colors for clarity
-    /* ctx.fillStyle = i % 2 === 0 ? "#555" : "#777";
-
-    ctx.beginPath();
-    ctx.moveTo(topLeft.x, topLeft.y);
-    ctx.lineTo(topRight.x, topRight.y);
-    ctx.lineTo(nextTR.x, nextTR.y);
-    ctx.lineTo(nextTL.x, nextTL.y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(bottomLeft.x, bottomLeft.y);
-    ctx.lineTo(bottomRight.x, bottomRight.y);
-    ctx.lineTo(nextBR.x, nextBR.y);
-    ctx.lineTo(nextBL.x, nextBL.y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke(); */
   }
 
   return zones;
@@ -351,101 +288,23 @@ type DrawingBoundingBox = {
   bottomRight: { x: number; y: number };
   bottomLeft: { x: number; y: number };
 };
-
-function drawZone3(
+function drawZone(
   ctx: CanvasRenderingContext2D,
   coords: { x: number; y: number },
   graph: GraphNetwork,
-  zone4data: {
+  startZoneData: {
     bottomLeft: { x: number; y: number };
     bottomRight: { x: number; y: number };
     topLeft: { x: number; y: number };
     topRight: { x: number; y: number };
   },
-  zone5data: {
+  endZoneData: {
     bottomLeft: { x: number; y: number };
     bottomRight: { x: number; y: number };
     topLeft: { x: number; y: number };
     topRight: { x: number; y: number };
   }
 ) {
-  function drawWall(ctx: CanvasRenderingContext2D) {}
-  function drawDoor(ctx: CanvasRenderingContext2D) {}
-  function drawFountain(ctx: CanvasRenderingContext2D) {}
-  function drawHallway(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = "black";
-    ctx.strokeStyle = "black";
-    ctx.moveTo(zone3data.coords.x, zone3data.coords.y);
-    ctx.lineTo(zone3data.endingCoords.x, zone3data.endingCoords.y);
-    ctx.moveTo(zone3data.coords.x + zone3data.width, zone3data.coords.y);
-    ctx.lineTo(zone3data.endingCoords.x + zone3data.endingwidth, zone3data.endingCoords.y);
-    ctx.moveTo(zone3data.coords.x, zone3data.coords.y + zone3data.height);
-    ctx.lineTo(zone3data.endingCoords.x, zone3data.endingCoords.y + zone3data.endingheight);
-    ctx.moveTo(zone3data.coords.x + zone3data.width, zone3data.coords.y + zone3data.height);
-    ctx.lineTo(zone3data.endingCoords.x + zone3data.endingwidth, zone3data.endingCoords.y + zone3data.endingheight);
-    //ctx.stroke();
-  }
-  function drawHallLeft(ctx: CanvasRenderingContext2D) {}
-  function drawHallRight(ctx: CanvasRenderingContext2D) {}
-
-  drawHallway(ctx);
-}
-
-function drawZone4(
-  ctx: CanvasRenderingContext2D,
-  coords: { x: number; y: number },
-  graph: GraphNetwork,
-  zone4data: {
-    bottomLeft: { x: number; y: number };
-    bottomRight: { x: number; y: number };
-    topLeft: { x: number; y: number };
-    topRight: { x: number; y: number };
-  },
-  zone5data: {
-    bottomLeft: { x: number; y: number };
-    bottomRight: { x: number; y: number };
-    topLeft: { x: number; y: number };
-    topRight: { x: number; y: number };
-  }
-) {
-  /*
-  function drawWall(ctx: CanvasRenderingContext2D) {
-    console.log("zone4data", zone4data);
-    const wallwidth = zone4data.topRight.x - zone4data.topLeft.x;
-    const wallheight = zone4data.bottomLeft.y - zone4data.topLeft.y;
-    console.log("wallwidth", wallwidth, "wallheight", wallheight);
-
-    ctx.fillStyle = COLOR_ROOMWALL;
-    ctx.fillRect(zone4data.topLeft.x, zone4data.topLeft.y, wallwidth, wallheight);
-  }
-  function drawDoor(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = COLOR_DOOR;
-    const doorwidth = 16;
-    const doorheight = 32;
-    const doorCoords = {
-      x: zone4data.topLeft.x + (zone4data.topRight.x - zone4data.topLeft.x) / 2 - doorwidth / 2,
-      y: zone4data.bottomLeft.y - doorheight,
-    };
-
-    ctx.fillRect(doorCoords.x, doorCoords.y, doorwidth, doorheight);
-  }
- 
-  function drawFountain(ctx: CanvasRenderingContext2D) {
-    let fountainwidth = 24;
-    let fountainheight = 24;
-    let fountainCoords = {
-      x: zone4data.topLeft.x + (zone4data.topRight.x - zone4data.topLeft.x) / 2 - fountainwidth / 2,
-      y: zone4data.bottomLeft.y + 2 - fountainheight,
-    };
-    ctx.drawImage(Resources.fountain.image, 0, 0, 24, 24, fountainCoords.x, fountainCoords.y, fountainwidth, fountainheight);
-  }
-*/
-  function isFountainDeadEnd(node: Node): boolean {
-    return node.numberEdges == 1 && node.type == tileType.FOUNTAIN;
-  }
-
-  // first determine if wall
-
   let isWall = graph.getNodeByCoords(coords.x, coords.y);
   if (
     isWall &&
@@ -454,31 +313,18 @@ function drawZone4(
       isWall.type == tileType.STAIRUP ||
       isWall.type == tileType.STORE)
   ) {
-    drawWall(ctx, zone4data, zone5data);
-    drawDoor(ctx, zone4data, zone5data);
+    drawWall(ctx, startZoneData, endZoneData);
+    drawDoor(ctx, startZoneData, endZoneData);
   } else if (isWall && isFountainDeadEnd(isWall)) {
-    drawWall(ctx, zone4data, zone5data);
-    drawFountain(ctx, zone4data, zone5data);
+    drawWall(ctx, startZoneData, endZoneData);
+    drawFountain(ctx, startZoneData, endZoneData);
   } else {
     //hallway
-    //drawHallLeft(ctx, zone4data, zone5data);
-    //drawHallway(ctx, zone4data, zone5data);
-    //drawHallRight(ctx, zone4data, zone5data);
-    drawCross(ctx, zone4data, zone5data);
+    //drawHallLeft(ctx, startZoneData, endZoneData);
+    drawHallway(ctx, startZoneData, endZoneData);
+    //drawHallRight(ctx, startZoneData, endZoneData);
+    //drawCross(ctx, startZoneData, endZoneData);
   }
-}
-
-//zone, index, zoneCoords, graph
-function drawZone(ctx: CanvasRenderingContext2D, zonedata: any, zoneCoords: any, graph: GraphNetwork) {
-  //zone 0 is outer bounding box
-  //zone 1 is closest to player
-  //zone 2 is one tile away
-  //zone 3 is two tiles away
-  //zone 4 is three tiles away
-  //zone 5 is vanishing point
-
-  drawZone4(ctx, zoneCoords, graph, zonedata[4], zonedata[5]);
-  drawZone3(ctx, zoneCoords, graph, zonedata[3], zonedata[4]);
 }
 
 //discrete drawing utility functions
@@ -799,6 +645,7 @@ function drawCross(ctx: CanvasRenderingContext2D, start: DrawingBoundingBox, end
   ctx.fill();
   ctx.stroke();
 
+  ctx.strokeStyle = COLOR_LINES;
   //draw right side triangle
   ctx.beginPath();
   ctx.moveTo(rightHallwayBoundingBox.topleft.x, rightHallwayBoundingBox.topleft.y);
@@ -892,6 +739,46 @@ function drawCross(ctx: CanvasRenderingContext2D, start: DrawingBoundingBox, end
   ctx.fillStyle = COLOR_FLOOR;
   ctx.fill();
   ctx.stroke();
+
+  //draw near hall edge in hallway color
+  ctx.strokeStyle = COLOR_HALLWAY;
+  ctx.beginPath();
+  ctx.moveTo(start.topLeft.x, start.topLeft.y);
+  ctx.lineTo(start.bottomLeft.x, start.bottomLeft.y);
+  ctx.moveTo(start.topRight.x, start.topRight.y);
+  ctx.lineTo(start.bottomRight.x, start.bottomRight.y);
+  ctx.closePath();
+  ctx.stroke();
+
+  //draw near hall edge in hallway color
+  ctx.strokeStyle = COLOR_HALLWAY;
+  ctx.beginPath();
+  ctx.moveTo(end.topLeft.x, end.topLeft.y);
+  ctx.lineTo(end.bottomLeft.x, end.bottomLeft.y);
+  ctx.moveTo(end.topRight.x, end.topRight.y);
+  ctx.lineTo(end.bottomRight.x, end.bottomRight.y);
+  ctx.closePath();
+  ctx.stroke();
+
+  // draw ceiling lines in ceiling color
+  ctx.strokeStyle = COLOR_CEILING;
+  ctx.beginPath();
+  ctx.moveTo(start.topLeft.x, start.topLeft.y);
+  ctx.lineTo(start.topRight.x, start.topRight.y);
+  ctx.moveTo(end.topLeft.x, end.topLeft.y);
+  ctx.lineTo(end.topRight.x, end.topRight.y);
+  ctx.closePath();
+  ctx.stroke();
+
+  // draw ceiling lines in ceiling color
+  ctx.strokeStyle = COLOR_FLOOR;
+  ctx.beginPath();
+  ctx.moveTo(start.bottomLeft.x, start.bottomLeft.y);
+  ctx.lineTo(start.bottomRight.x, start.bottomRight.y);
+  ctx.moveTo(end.bottomLeft.x, end.bottomLeft.y);
+  ctx.lineTo(end.bottomRight.x, end.bottomRight.y);
+  ctx.closePath();
+  ctx.stroke();
 }
 function drawWall(ctx: CanvasRenderingContext2D, start: DrawingBoundingBox, end: DrawingBoundingBox) {
   const wallwidth = start.topRight.x - start.topLeft.x;
@@ -928,4 +815,27 @@ function drawFountain(ctx: CanvasRenderingContext2D, start: DrawingBoundingBox, 
 
 function isFountainDeadEnd(node: Node): boolean {
   return node.numberEdges == 1 && node.type == tileType.FOUNTAIN;
+}
+
+function drawRoom(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
+  const inset = 0.1; // 10% inset
+  const borderWidth = 5; // Adjust for thickness
+
+  const x = canvasWidth * inset;
+  const y = canvasHeight * inset;
+  const width = canvasWidth * (1 - inset * 2);
+  const height = canvasHeight * (1 - inset * 2) - borderWidth; // Adjust for border
+
+  // Draw filled rectangle
+  ctx.fillStyle = "white";
+  ctx.fillRect(x, y, width, height);
+
+  // Draw border
+  ctx.lineWidth = borderWidth;
+  ctx.strokeStyle = "black";
+  ctx.strokeRect(x, y, width, height);
+
+  ctx.font = "30px Arial"; // Set font size and type
+  ctx.fillStyle = "black"; // Text color
+  ctx.fillText("Room", x + width / 2 - 30, y + height / 2);
 }

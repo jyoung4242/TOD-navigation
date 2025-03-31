@@ -19,7 +19,7 @@ const game = new Engine({
   displayMode: DisplayMode.FitScreen, // the display mode
   pixelArt: true,
   suppressPlayButton: true,
-  pixelRatio: 2.0,
+  pixelRatio: 1.0,
 });
 
 game.start(loader);
